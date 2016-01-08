@@ -15,9 +15,9 @@ function write_json_attribute()
 {
     if [[ $1 == "message" ]]
     then
-        echo "\" $1 \" : \" $2 \"" >> $3  
+        echo "\"$1\" : \"$2\"" >> $3  
     else
-        echo "\" $1 \" : \" $2 \"," >> $3  
+        echo "\"$1\" : \"$2\"," >> $3  
 
     fi
 
