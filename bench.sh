@@ -53,6 +53,7 @@ function execute_bench()
         do
             for c in "${channels[@]}"
             do
+              
                 ########### DISSIMULATION ##########
                 cd $4
 
@@ -74,33 +75,35 @@ function execute_bench()
                     write_json_attribute "message" "file: $f" $LOG_FILE
 
                     echo "}," >> $LOG_FILE  
+                   
+                    ########### REVELATION ############
+                    cd $5 
+
+                    before=$(date +%s%3N)   
+
+                    ./reveal -in $RESULT_IMAGE -magic FFFFFFFF -b $i -c $c &> /dev/null
+
+                    if [[ $? -eq 0 ]] 
+                    then
+                        after=$(date +%s%3N)
+
+                        echo "{ $(echo "")" >> $LOG_FILE
+
+                        write_json_attribute "image" $image $LOG_FILE
+                        write_json_attribute "type" "revelation" $LOG_FILE
+                        write_json_attribute "time" $((after-before)) $LOG_FILE
+                        write_json_attribute "bitnumber" $i $LOG_FILE
+                        write_json_attribute "channel" $c $LOG_FILE
+                        write_json_attribute "message" "file: $f" $LOG_FILE
+
+                        echo "}," >> $LOG_FILE
+                    fi
+
+                    ########### REVELATION ############
+
                 fi
 
                 ########### DISSIMULATION #########
-                ########### REVELATION ############
-                cd $5 
-
-                before=$(date +%s%3N)   
-
-                ./reveal -in $RESULT_IMAGE -magic FFFFFFFF -b $i -c $c &> /dev/null
-
-                if [[ $? -eq 0 ]] 
-                then
-                    after=$(date +%s%3N)
-
-                    echo "{ $(echo "")" >> $LOG_FILE
-
-                    write_json_attribute "image" $image $LOG_FILE
-                    write_json_attribute "type" "revelation" $LOG_FILE
-                    write_json_attribute "time" $((after-before)) $LOG_FILE
-                    write_json_attribute "bitnumber" $i $LOG_FILE
-                    write_json_attribute "channel" $c $LOG_FILE
-                    write_json_attribute "message" "file: $f" $LOG_FILE
-
-                    echo "}," >> $LOG_FILE
-                fi
-
-                ########### REVELATION ############
             done
         done
     done
