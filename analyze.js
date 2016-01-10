@@ -115,6 +115,31 @@ function computeImageSize(results){
 
 };
 
+function computeCorrelation(results){
+    var stats = {
+        "template": [], 
+        "histogram" : []
+    };
+
+    results.forEach(function(elem){
+        var current = stats[elem.correlation];
+        var currentIndex = existIn(current, "image", elem.image, elem.image);
+       
+        if(currentIndex != -1){
+            current[currentIndex].times.push(elem.time);   
+        } else {
+            current.push({
+                "image" : elem.image, 
+                "times" : [elem.time]
+            });
+        }
+    });
+  
+    return stats;
+
+
+};
+
 function incrementalAverage(previous, current, index){
     return ((parseInt(current) - parseInt(previous)) / (parseInt(index) + 1)) + parseInt(previous);
 };
@@ -376,8 +401,96 @@ function averageImage(results){
     for(var i = 0; i < temp.length; ++i){
         console.log("[" + temp[i][1] + ", " + temp[i][0] + "],");
     }
+};
+
+function averageCorrelation(results){
+    var dissimulation = results.template; 
+    var revelation = results.histogram;
+    
+    var channels = []; 
+    var channelAverage = [];
+    var channelCount = [];
+
+    dissimulation.forEach(function(elem){
+        for(var i = 0; i < elem.times.length; ++i){
+            var parsedMessage = elem.image.split("/");
+            parsedMessage = parsedMessage[parsedMessage.length - 1].split('.')[0].trim().split('_');
+            parsedMessage = parsedMessage[parsedMessage.length - 1];          
+            parsedMessage = parseInt(parsedMessage.split('x')[0]) * parseInt(parsedMessage.split('x')[1]);
+
+            var index = findChannelIndex(channels, parsedMessage);
+            
+            if(index > -1){
+                channelCount[index]++;
+                channelAverage[index] = incrementalAverage(channelAverage[index], elem.times[i], channelCount[index]);
+            } else {
+                channels.push(parsedMessage);
+                channelAverage.push(elem.times[i]);
+                channelCount.push(0);
+            }
+       }
+    });
+
+    console.log("Template");
+    
+    var temp = [];
+
+    for(var i = 0; i < channels.length; ++i){
+        temp.push([channelAverage[i], channels[i]]);
+    }
+
+    temp.sort(function(a, b){
+        return a[1] - b[1];
+    });
 
 
+    for(var i = 0; i < temp.length; ++i){
+        console.log("[" + temp[i][1] + ", " + temp[i][0] + "],");
+    }
+
+
+   
+    channels = [];
+    channelAverage = [];
+    channelCount = []; 
+
+    revelation.forEach(function(elem){
+         for(var i = 0; i < elem.times.length; ++i){
+            var parsedMessage = elem.image.split("/");
+            parsedMessage = parsedMessage[parsedMessage.length - 1].split('.')[0].trim().split('_');
+            parsedMessage = parsedMessage[parsedMessage.length - 1];          
+            parsedMessage = parseInt(parsedMessage.split('x')[0]) * parseInt(parsedMessage.split('x')[1]);
+
+          
+            var index = findChannelIndex(channels, parsedMessage);
+            
+            if(index > -1){
+                channelCount[index]++;
+                channelAverage[index] = incrementalAverage(channelAverage[index], elem.times[i], channelCount[index]);
+            } else {
+                channels.push(parsedMessage);
+                channelAverage.push(elem.times[i]);
+                channelCount.push(0);
+            }
+       }
+     });
+
+    console.log("Histogram");
+    
+    temp = [];
+
+    for(var i = 0; i < channels.length; ++i){
+        temp.push([channelAverage[i], channels[i]]);
+    }
+
+    temp.sort(function(a, b){
+        return a[1] - b[1];
+    });
+
+
+    for(var i = 0; i < temp.length; ++i){
+        console.log("[" + temp[i][1] + ", " + temp[i][0] + "],");
+    }
 };
 
 
@@ -403,5 +516,8 @@ function displayResults(results){
 //var messageResults = computeMessage(results);
 //averageMessage(messageResults);
 
-var imageResults = computeImageSize(results);
-averageImage(imageResults);
+//var imageResults = computeImageSize(results);
+//averageImage(imageResults);
+
+var correlationResults = computeCorrelation(results);
+averageCorrelation(correlationResults);
