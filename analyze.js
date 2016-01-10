@@ -111,8 +111,6 @@ function computeImageSize(results){
     });
   
     return stats;
-
-
 };
 
 function computeCorrelation(results){
@@ -123,26 +121,56 @@ function computeCorrelation(results){
 
     results.forEach(function(elem){
         var current = stats[elem.correlation];
-        var currentIndex = existIn(current, "image", elem.image, elem.image);
-       
+        var currentIndex = existIn(current, "bitnumber", elem.bitnumber, elem.image);
+        var correlationResult = parseFloat(elem.output.split(" ")[1]);
+
         if(currentIndex != -1){
-            current[currentIndex].times.push(elem.time);   
+            current[currentIndex].output.push(correlationResult);   
         } else {
             current.push({
                 "image" : elem.image, 
-                "times" : [elem.time]
+                "output" : [correlationResult]
             });
         }
     });
   
     return stats;
+};
 
 
+function computeCorrelationResult(results){
+    var stats = {
+        "template": [], 
+        "histogram" : []
+    };
+
+    results.forEach(function(elem){
+        var current = stats[elem.correlation];
+        var currentIndex = existIn(current, "bitnumber", elem.bitnumber, elem.image);
+        var correlationResult = parseFloat(elem.output.split(" ")[1]);
+
+        if(currentIndex != -1){
+            current[currentIndex].output.push(correlationResult);   
+        } else {
+            current.push({
+                "image" : elem.image, 
+                "bitnumber" : elem.bitnumber,
+                "output" : [correlationResult]
+            });
+        }
+    });
+  
+    return stats;
 };
 
 function incrementalAverage(previous, current, index){
     return ((parseInt(current) - parseInt(previous)) / (parseInt(index) + 1)) + parseInt(previous);
 };
+
+function incrementalFloatAverage(previous, current, index){
+    return ((parseFloat(current) - parseFloat(previous)) / (parseFloat(index) + 1)) + parseFloat(previous);
+};
+
 
 function averageBitNumber(results){
     var dissimulation = results.dissimulation; 
@@ -493,14 +521,52 @@ function averageCorrelation(results){
     }
 };
 
+function averageCorrelationResults(results){
+    var dissimulation = results.template; 
+    var revelation = results.histogram;
+
+    var bitresult = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var bitcount = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    dissimulation.forEach(function(elem, index){
+        for(var i = 0; i < elem.output.length; ++i){
+            bitcount[elem.bitnumber]++;
+            bitresult[elem.bitnumber] = incrementalFloatAverage(bitresult[elem.bitnumber], elem.output[i], bitcount[elem.bitnumber]); 
+        }
+    });
+
+    console.log("Template");
+    
+    for(var i = 1; i < bitresult.length; ++i){
+        console.log("[" + i + ", " + bitresult[i] + "],");
+    }
+ 
+    bitresult = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    bitcount = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    revelation.forEach(function(elem, index){
+        for(var i = 0; i < elem.output.length; ++i){
+            bitcount[elem.bitnumber]++;
+            bitresult[elem.bitnumber] = incrementalFloatAverage(bitresult[elem.bitnumber], elem.output[i], bitcount[elem.bitnumber]); 
+        }
+    });
+
+    console.log("Histogram");
+    
+    for(var i = 1; i < bitresult.length; ++i){ 
+        console.log("[" + i + ", " + bitresult[i] + "],");
+    }
+
+
+};
 
 function displayResults(results){
-    results.dissimulation.forEach(function(elem){
+    results.template.forEach(function(elem){
         console.log(elem);
         console.log(",");
     });
 
-    results.dissimulation.forEach(function(elem){
+    results.histogram.forEach(function(elem){
         console.log(elem);
         console.log(",");
     });
@@ -519,5 +585,9 @@ function displayResults(results){
 //var imageResults = computeImageSize(results);
 //averageImage(imageResults);
 
-var correlationResults = computeCorrelation(results);
-averageCorrelation(correlationResults);
+//var correlationResults = computeCorrelation(results);
+//averageCorrelation(correlationResults);
+
+var correlationResults = computeCorrelationResult(results);
+displayResults(correlationResults);
+averageCorrelationResults(correlationResults);
