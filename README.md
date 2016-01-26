@@ -3,7 +3,7 @@
 In order to test performance of our tool of dissimulation and revelation of a message in an image (for our steganography project at Polytech Nice-Sophia)
 I made this benchmark script, that can be used to mesure performance of any couple of tools which complied to the project specification (one folder for revelation and one for dissimulation with a build.sh script to build the tool).
 
-More informations for this project can be found at (http://www.i3s.unice.fr/~mosser/teaching/15_16/ps5)[http://www.i3s.unice.fr/~mosser/teaching/15_16/ps5]
+More informations for this project can be found at [http://www.i3s.unice.fr/~mosser/teaching/15_16/ps5](http://www.i3s.unice.fr/~mosser/teaching/15_16/ps5)
 
 The **bench.sh** will download the image dataset and will run the benchmark on it.
 
