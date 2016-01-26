@@ -116,7 +116,6 @@ git clone $PROJECT_URL &> /dev/null 2> /dev/null
 
 # Temporary
 cd private
-git checkout benchmarks &> /dev/null 2> /dev/null
 cd ../
 
 echo "-> Building dissimulation ..."
